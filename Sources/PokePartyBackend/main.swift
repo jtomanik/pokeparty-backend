@@ -30,5 +30,5 @@ Log.logger = HeliumLogger()
 
 let router = Router()
 let slacket = PokeParty(using: router)
-Kitura.addHTTPServer(onPort: 8090, with: router)
+Kitura.addHTTPServer(onPort: ServerConfig().port!, with: router)
 Kitura.run()

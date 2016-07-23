@@ -27,16 +27,20 @@ struct PokePartyHandler: RouterMiddleware, ErrorType {
         Log.debug("\(self.dynamicType.errorDomain) handler")
 
         guard let action = PokePartyAction(request: request) else {
-                let error = PokePartyError.handlerActionCouldntInit
-                Log.error(error)
-                response.error = self.getError(message: error.description)
-                next()
-                return
+            let error = PokePartyError.handlerActionCouldntInit
+            Log.error(error)
+            response.error = self.getError(message: error.description)
+            next()
+            return
         }
 
         switch action {
         case .signup:
             SignupHandler().handle(request: request, response: response, next: next)
+        case .party:
+            PartyHandler().handle(request: request, response: response, next: next)
+        case .event:
+            EventHandler().handle(request: request, response: response, next: next)
         }
     }
 }

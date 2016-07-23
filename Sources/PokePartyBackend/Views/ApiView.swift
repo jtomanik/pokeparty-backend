@@ -15,11 +15,24 @@ import PokePartyShared
 
 enum ApiMessage {
     case user(User)
+    case party(Party)
+    case detailedParty(DetailedParty)
+    case event(Event)
+    case detailedEvent(DetailedEvent)
+
 
     var json: JSON? {
         switch self {
         case .user(let u):
             return UserAdapter.encode(model: u)
+        case .party(let p):
+            return PartyAdapter.encode(model: p)
+        case .event(let e):
+            return EventAdapter.encode(model: e)
+        case .detailedParty(let p):
+            return DetailedPartyAdapter.encode(model: p)
+        case .detailedEvent(let e):
+            return DetailedEventAdapter.encode(model: e)
         default:
             return nil
         }

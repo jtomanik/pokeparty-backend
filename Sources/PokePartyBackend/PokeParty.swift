@@ -14,7 +14,10 @@ import PokePartyShared
 import libc
 
 struct ServerConfig: URLType {
-    
+
+    private struct SharedConfig: BackendConfig {}
+    private let sharedConfig = SharedConfig()
+
     let host: String
     let port: Int?
     
@@ -23,8 +26,8 @@ struct ServerConfig: URLType {
             self.host = "localhost"
             self.port = 8090
         } else {
-            self.host = "pokeparty.rocks"
-            self.port = 8090
+            self.host = sharedConfig.host
+            self.port = sharedConfig.port
         }
     }
 }
