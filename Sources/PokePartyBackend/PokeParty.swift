@@ -21,10 +21,10 @@ struct ServerConfig: URLType {
     init() {
         if LaunchArgumentsProcessor.onLocalHost {
             self.host = "localhost"
-            self.port = nil
+            self.port = 8090
         } else {
             self.host = "pokeparty.rocks"
-            self.port = nil
+            self.port = 8090
         }
     }
 }
