@@ -66,7 +66,7 @@ struct EventService: EventServiceProvider {
         let event: Promise<DetailedEvent> = DetailedEventDataStore.sharedInstance.get(keyId: hash)
         let owner = event.map(transform: { $0.owner })
 
-        let users = whenAll(promises: [user,owner])
+        let users = whenAll(dispatch: .Synchronous, promises: [user,owner])
         let validate = users.map(transform: { array throws -> User in
             guard let user = array.first where array.count == 2,
                 let owner = array.last where user.team == owner.team else {

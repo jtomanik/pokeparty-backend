@@ -29,12 +29,19 @@ struct PartyService: PartyServiceProvider {
     static func create(name: String, leaderId: String) -> Promise<Store.Storable> {
 
         let source = PromiseSource<Store.Storable>(dispatch: .Synchronous)
-        var newElement = Store.Storable(name: name, leaderId: leaderId)
+        var newElement = Party(name: name, leaderId: leaderId)
 
         let existingPromise: Promise<Party> = Store.sharedInstance.get(keyId: newElement.keyId)
-
         existingPromise
-            .flatMapError(transform: { error throws -> Promise<Store.Storable> in
+            .then(handler: { user in
+                source.resolve(value: user)
+            })
+
+        let newPromise = existingPromise.mapVoid()
+            .map(transform: { _ -> Bool in
+                return true
+            })
+            .flatMapError(transform: { error throws -> Promise<Bool> in
                 guard let userError =  error as? DataStoreError where userError == .notFound(key: newElement.keyId) else {
                     throw error
                 }
@@ -43,9 +50,10 @@ struct PartyService: PartyServiceProvider {
                 newElement.hash = newElement.id
                 newElement.memberIds = [leaderId]
 
-                return Store.sharedInstance.set(data: newElement).flatMap(transform: { _ -> Promise<Store.Storable> in
-                    return Store.sharedInstance.get(keyId: newElement.keyId)
-                })
+                return Store.sharedInstance.set(data: newElement)
+            })
+            .flatMap(transform: { result -> Promise<Store.Storable> in
+                return Store.sharedInstance.get(keyId: newElement.keyId)
             })
             .then(handler: { user in
                 source.resolve(value: user)
@@ -66,7 +74,7 @@ struct PartyService: PartyServiceProvider {
         let party: Promise<DetailedParty> = DetailedPartyDataStore.sharedInstance.get(keyId: hash)
         let leader = party.map(transform: { $0.leader })
 
-        let users = whenAll(promises: [user,leader])
+        let users = whenAll(dispatch: .Synchronous, promises: [user,leader])
         let validate = users.map(transform: { array throws -> User in
             guard let user = array.first where array.count == 2,
                 let owner = array.last where user.team == owner.team else {

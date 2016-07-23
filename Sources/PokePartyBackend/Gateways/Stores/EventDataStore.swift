@@ -65,9 +65,9 @@ class EventDataStore: DataStoreProvider {
 
     func set(data: Storable) -> Promise<Bool> {
 
-        let source = PromiseSource<Bool>()
+        let source = PromiseSource<Bool>(dispatch: .Synchronous)
 
-        let members = whenAll(promises: data.memberIds.map { UserDataStore.sharedInstance.get(keyId: $0) })
+        let members = whenAll(dispatch: .Synchronous, promises: data.memberIds.map { UserDataStore.sharedInstance.get(keyId: $0) })
         let operation = members
             .map(transform: { members throws -> DetailedEvent in
                 let leaderId = data.ownerId

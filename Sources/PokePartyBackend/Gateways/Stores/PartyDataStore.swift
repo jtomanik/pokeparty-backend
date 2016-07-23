@@ -17,14 +17,14 @@ import SwiftyJSON
 extension Party: StorableType {
 
     var keyId: String {
-        return "name:\(self.leaderId)"
+        return "\(self.name):\(self.leaderId)"
     }
 }
 
 extension DetailedParty: StorableType {
 
     var keyId: String {
-        return "name:\(self.leader.id)"
+        return "\(self.name):\(self.leader.id)"
     }
 }
 
@@ -65,9 +65,10 @@ class PartyDataStore: DataStoreProvider {
 
     func set(data: Storable) -> Promise<Bool> {
 
-        let source = PromiseSource<Bool>()
+        let source = PromiseSource<Bool>(dispatch: .Synchronous)
 
-        let members = whenAll(promises: data.memberIds.map { UserDataStore.sharedInstance.get(keyId: $0) })
+        let memberPromises = data.memberIds.map { UserDataStore.sharedInstance.get(keyId: $0) }
+        let members = whenAll(dispatch: .Synchronous, promises: memberPromises)
         let operation = members
             .map(transform: { members throws -> DetailedParty in
                 let leaderId = data.leaderId
