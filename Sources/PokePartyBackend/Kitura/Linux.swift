@@ -9,12 +9,14 @@
 import Foundation
 import Socket
 
+#if os(OSX)
 extension Sequence where Iterator.Element == String {
 
     func joinedBy(separator: String) -> String {
         return self.joined(separator: separator)
     }
 }
+#endif
 
 extension NSData: SocketReader {
     public func readString() throws -> String? {
