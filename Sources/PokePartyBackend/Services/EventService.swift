@@ -13,7 +13,7 @@ import PokePartyShared
 
 protocol EventServiceProvider {
 
-    static func create(name: String, ownerId: String) -> Promise<Event>
+    static func create(name: String, ownerId: String, latitude: Double, longitude: Double, description: String) -> Promise<Event>
     static func join(hash: String, user: String) -> Promise<Event>
     static func details(id: String) -> Promise<DetailedEvent>
     static func update(event: Event) -> Promise<Event>
@@ -26,10 +26,11 @@ struct EventService: EventServiceProvider {
 
     static let errorDomain = "EventService"
 
-    static func create(name: String, ownerId: String) -> Promise<Store.Storable> {
+    static func create(name: String, ownerId: String, latitude: Double, longitude: Double, description: String) -> Promise<Store.Storable> {
 
         let source = PromiseSource<Store.Storable>(dispatch: .Synchronous)
-        var newElement = Store.Storable(name: name, ownerId: ownerId)
+        var newElement = Store.Storable(name: name, latitude: latitude, longitude: longitude, ownerId: ownerId)
+        newElement.description = description
 
         let existingPromise: Promise<Event> = Store.sharedInstance.get(keyId: newElement.keyId)
 

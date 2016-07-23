@@ -29,7 +29,7 @@ extension EventAction: HandlerAction {
     var requiredQueryParameters: [String]? {
         switch self {
         case .create:
-            return ["name","owner"]
+            return ["name","owner", "latitude", "longitude", "description"]
         case .join:
             return ["hash","user"]
         case .details:
@@ -61,8 +61,13 @@ struct EventHandler: RouterMiddleware, ErrorType {
         switch action {
         case .create:
             if let name = request.queryParameters["name"],
-                let owner = request.queryParameters["owner"] {
-                EventService.create(name: name, ownerId: owner)
+                let owner = request.queryParameters["owner"],
+                let lat = request.queryParameters["latitude"],
+                let lon = request.queryParameters["longitude"],
+                let latitude = Double(lat),
+                let longitude = Double(lon),
+                let description = request.queryParameters["description"] {
+                EventService.create(name: name, ownerId: owner, latitude: latitude, longitude: longitude, description: description)
                     .then(handler: { event in
                         apiView.respond(message: .event(event))
                     }).trap(handler: { error in

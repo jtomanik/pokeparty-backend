@@ -74,7 +74,7 @@ class EventDataStore: DataStoreProvider {
                 guard let leader = members.filter({ $0.id == leaderId }).first else {
                     throw DataStoreError.notFound(key: leaderId)
                 }
-                return DetailedEvent(id: data.id, hash: data.hash, name: data.name, owner: leader, members: members)
+                return DetailedEvent(hash: data.hash, name: data.name, latitude: data.latitude, longitude: data.longitude, owner: leader, members: members)
             })
             .flatMap(transform: { detailed in
                 return DetailedEventDataStore.sharedInstance.set(data: detailed)
