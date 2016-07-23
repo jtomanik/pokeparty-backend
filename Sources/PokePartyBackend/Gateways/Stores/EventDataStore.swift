@@ -17,14 +17,14 @@ import SwiftyJSON
 extension Event: StorableType {
 
     var keyId: String {
-        return "name:\(self.ownerId)"
+        return "\(self.name):\(self.ownerId)"
     }
 }
 
 extension DetailedEvent: StorableType {
 
     var keyId: String {
-        return "name:\(self.owner.id)"
+        return "\(self.name):\(self.owner.id)"
     }
 }
 

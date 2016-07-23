@@ -33,9 +33,16 @@ struct EventService: EventServiceProvider {
         newElement.description = description
 
         let existingPromise: Promise<Event> = Store.sharedInstance.get(keyId: newElement.keyId)
-
         existingPromise
-            .flatMapError(transform: { error throws -> Promise<Store.Storable> in
+            .then(handler: { event in
+                source.resolve(value: event)
+            })
+
+        let newPromise = existingPromise.mapVoid()
+            .map(transform: { _ -> Bool in
+                return true
+            })
+            .flatMapError(transform: { error throws -> Promise<Bool> in
                 guard let userError =  error as? DataStoreError where userError == .notFound(key: newElement.keyId) else {
                     throw error
                 }
@@ -44,12 +51,13 @@ struct EventService: EventServiceProvider {
                 newElement.hash = newElement.id
                 newElement.memberIds = [ownerId]
 
-                return Store.sharedInstance.set(data: newElement).flatMap(transform: { _ -> Promise<Store.Storable> in
-                    return Store.sharedInstance.get(keyId: newElement.keyId)
-                })
+                return Store.sharedInstance.set(data: newElement)
             })
-            .then(handler: { user in
-                source.resolve(value: user)
+            .flatMap(transform: { _ -> Promise<Store.Storable> in
+                return Store.sharedInstance.get(keyId: newElement.keyId)
+            })
+            .then(handler: { event in
+                source.resolve(value: event)
             })
             .trap(handler: { error in
                 source.reject(error: error)
